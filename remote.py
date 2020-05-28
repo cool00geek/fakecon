@@ -15,7 +15,7 @@ from joycontrol.memory import FlashMemory
 from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
 
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -47,16 +47,50 @@ class fakecon:
             self.controller_state = controller_state
             await self.controller_state.connect()
 
-    async def push_btn(self, btn):
-        await button_push(self.controller_state, btn)
+    def push_btn(self, btn):
+        self.controller_state.button_state.set_button(btn)
+
+    def release_btn(self, btn):
+        self.controller_state.button_state.set_button(btn, pushed=False)
 
 fc = fakecon()
+loop = asyncio.get_event_loop()
 
 @app.route('/btn/<btn>')
 def btn(btn):
-    print(btn)
-    loop.run_until_complete(fc.push_btn(btn))
-    return "200"
+    fc.push_btn(btn)
+    loop.run_until_complete(fc.controller_state.send())
+    return "200\n"
+
+@app.route('/unbtn/<btn>')
+def unbtn(btn):
+    fc.release_btn(btn)
+    loop.run_until_complete(fc.controller_state.send())
+    return "200\n"
+
+@app.route('/stick/<s>/<direction>')
+def stick(s, direction):
+    if s == 'l':
+        stick = fc.controller_state.l_stick_state
+    else:
+        stick = fc.controller_state.r_stick_state
+
+    if direction == 'center':
+        stick.set_center()
+    elif direction == 'up':
+        stick.set_up()
+    elif direction == 'down':
+        stick.set_down()
+    elif direction == 'left':
+        stick.set_left()
+    elif direction == 'right':
+        stick.set_right()
+    loop.run_until_complete(fc.controller_state.send())
+    return "200\n"
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     # check if root
@@ -76,9 +110,9 @@ if __name__ == '__main__':
                         help='The Switch console Bluetooth address, for reconnecting as an already paired controller')
     args = parser.parse_args()
 
-    loop = asyncio.get_event_loop()
     loop.run_until_complete(fc.setup(args))
     print("First thing ran")
     #loop.run_until_complete(fc.push_btn('a'))
+    fc.push_btn('a')
     #print("Second thing ran")
     app.run()

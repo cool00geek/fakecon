@@ -14,11 +14,11 @@ var DEFAULT_MAPPINGS = {
     LEFT_DPAD_U: '', //
     LEFT_DPAD_D: '', //
 
-    MINUS: '\\', // "\"
-    CAPTURE: '.', // "."
+    MINUS: '.', // "."
+    CAPTURE: ',', // ","
 
-    ZR: 'i', // "i"
-    R: 'p', // "p"
+    ZR: 'u', // "u"
+    R: 'o', // "o"
 
     RIGHT_STICK_L: '4', // "4"
     RIGHT_STICK_R: '6', // "6"
@@ -30,23 +30,27 @@ var DEFAULT_MAPPINGS = {
     X: 'i', // "i"
     B: 'k', // "k"
     PLUS: '\'', // "'"
-    HOME: '/', // "/"
+    HOME: 'Control', // "ctrl"
 };
 
+/*
 // Load the store
 const Store = require('electron-store');
 const store = new Store();
+*/
 
 var CURR_MAPPINGS = {};
 
 var init = function() {
+    /*
     // Load mappings to what we want to use
     storedMappings = store.get('mappings');
     if (storedMappings == null){
         CURR_MAPPINGS = DEFAULT_MAPPINGS;
     } else {
         CURR_MAPPINGS = storedMappings
-    }
+    }*/
+    CURR_MAPPINGS = DEFAULT_MAPPINGS;
     updateMappingOutput();
     appendOutput("Loaded mappings");
 }
@@ -71,6 +75,7 @@ function download() {
     dlAnchorElem.click();
 }
 
+/*
 function openFile() {
     const {remote} = require('electron'); 
     const fs = require('fs');
@@ -102,9 +107,9 @@ function openFile() {
         });
     });
 }
+*/
 
 // https://stackoverflow.com/questions/13640061/get-a-list-of-all-currently-pressed-keys-in-javascript
-var is = require("electron-is");
 window.addEventListener("keydown",
     function(e){
         console.log(e.key + " Has been pressed")
@@ -163,22 +168,54 @@ false);
 window.addEventListener('keyup',
     function(e){
         console.log(e.key + " Has been released")
-        if (e.key  == CURR_MAPPINGS.LEFT_STICK_L) {
-            reset('l')
+        if (e.key  == CURR_MAPPINGS.ZL){
+            releaseBtn('zl')
+        } else if (e.key  == CURR_MAPPINGS.L) {
+            releaseBtn('l')
+        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_L) {
+            resetStick('l')
         } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_R) {
-            reset('l');
+            resetStick('l');
         } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_U) {
-            reset('l');
+            resetStick('l');
         } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_D) {
-            reset('l');
+            resetStick('l');
+        }  else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_L) {
+            releaseBtn('left')
+        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_R) {
+            releaseBtn('right')
+        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_U) {
+            releaseBtn('up')
+        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_D) {
+            releaseBtn('down')
+        } else if (e.key  == CURR_MAPPINGS.MINUS) {
+            releaseBtn('minus')
+        } else if (e.key  == CURR_MAPPINGS.CAPTURE) {
+            releaseBtn('capture')
+        } else if (e.key  == CURR_MAPPINGS.ZR) {
+            releaseBtn('zr')
+        } else if (e.key  == CURR_MAPPINGS.R) {
+            releaseBtn('r')
         } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_L) {
-            reset('r');
+            resetStick('r');
         } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_R) {
-            reset('r');
+            resetStick('r');
         } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_U) {
-            reset('r');
+            resetStick('r');
         } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_D) {
-            reset('r');
+            resetStick('r');
+        } else if (e.key  == CURR_MAPPINGS.Y) {
+            releaseBtn('y')
+        } else if (e.key  == CURR_MAPPINGS.A) {
+            releaseBtn('a')
+        } else if (e.key  == CURR_MAPPINGS.X) {
+            releaseBtn('x')
+        } else if (e.key  == CURR_MAPPINGS.B) {
+            releaseBtn('b')
+        } else if (e.key  == CURR_MAPPINGS.PLUS) {
+            releaseBtn('plus')
+        } else if (e.key  == CURR_MAPPINGS.HOME) {
+            releaseBtn('home')
         }
     },
 false);
@@ -190,53 +227,22 @@ function clearCmd() {
     getCommandOutput().className = "textarea";
 }
 
-function runCommand(arr){
-    const process = require('child_process');   // The power of Node.JS
-
-    // https://github.com/martinjackson/electron-run-shell-example/blob/master/gui-funct.js
-    // https://stackoverflow.com/questions/27688804/how-do-i-debug-error-spawn-enoent-on-node-js
-    var child = process.spawn('tmux', arr);
-    getCommandOutput().className = "textarea is-primary"
-   
-    child.stdout.on('data', function (data) {
-        appendOutput(data);
-    });
-    
-    child.stderr.on('data', function (data) {
-        if (data.includes('error connecting to') || data.includes('no server running')){
-            appendOutput('Error: Main process not running');
-        } else {
-            appendOutput('stderr:' +data );
-            getCommandOutput().className = "textarea is-danger"
-        }   
-    });
-    
-    child.on('close', function (code) {
-        if (code == 0){
-            //console.log("Child process done")
-        }
-        else{
-            console.log("Child process fail: " + code)
-            getCommandOutput().className = "textarea is-danger"
-        }
-    });
-}
-
 function setStick(stick, direction) {
-    let chain = 'stick ' + stick + ' ' + direction + '';
     appendOutput("Setting stick: " + stick + " to " + direction);
-
-    runCommand(["send-keys", "-t", session, chain, "ENTER"]);
+    axios.get('/stick/' + stick + '/' + direction);
 }
 
-function reset(stick) {
+function resetStick(stick) {
     appendOutput("Resetting stick: " + stick);
-    
-    runCommand(["send-keys", "-t", session, 'stick ' + stick + ' center', "ENTER"]);
+    axios.get('/stick/' + stick + '/center');
 }
 
 function pushBtn(btn) {
     appendOutput("Pushing button: " + btn);
-    
-    runCommand(["send-keys", "-t", session, "'" + btn + "'", "ENTER"]);
+    axios.get('/btn/' + btn);
+};
+
+function releaseBtn(btn) {
+    appendOutput("Pushing button: " + btn);
+    axios.get('/unbtn/' + btn);
 };

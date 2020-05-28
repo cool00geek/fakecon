@@ -3,7 +3,8 @@
 
 <head>
     <title>Joycon</title>
-    <link rel="stylesheet" type="text/css" href="node_modules/bulma/css/bulma.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/bulma.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
@@ -49,7 +50,7 @@
 
     
     <!-- https://github.com/martinjackson/electron-run-shell-example/blob/master/index.html -->
-    <script src="keys.js"></script> 
+    <script src="/static/keys.js"></script> 
     <script>
         function getCommandOutput() { return document.getElementById("command-output");  };
         function getMappingOutput() { return document.getElementById("mapping-output");  };
