@@ -1,0 +1,3 @@
+joycontrol>=0.13
+Flask>=1.1.1
+waitress>=1.4.3
