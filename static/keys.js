@@ -33,6 +33,8 @@ var DEFAULT_MAPPINGS = {
     HOME: 'Control', // "ctrl"
 };
 
+var curr_capture = '';
+
 /*
 // Load the store
 const Store = require('electron-store');
@@ -40,6 +42,125 @@ const store = new Store();
 */
 
 var CURR_MAPPINGS = {};
+var TEMP_MAPPINGS = {}
+
+function keyup(e){
+    console.log(e.key + " Has been released")
+    if (e.key  == CURR_MAPPINGS.ZL){
+        releaseBtn('zl')
+    } else if (e.key  == CURR_MAPPINGS.L) {
+        releaseBtn('l')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_L) {
+        resetStick('l')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_R) {
+        resetStick('l');
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_U) {
+        resetStick('l');
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_D) {
+        resetStick('l');
+    }  else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_L) {
+        releaseBtn('left')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_R) {
+        releaseBtn('right')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_U) {
+        releaseBtn('up')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_D) {
+        releaseBtn('down')
+    } else if (e.key  == CURR_MAPPINGS.MINUS) {
+        releaseBtn('minus')
+    } else if (e.key  == CURR_MAPPINGS.CAPTURE) {
+        releaseBtn('capture')
+    } else if (e.key  == CURR_MAPPINGS.ZR) {
+        releaseBtn('zr')
+    } else if (e.key  == CURR_MAPPINGS.R) {
+        releaseBtn('r')
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_L) {
+        resetStick('r');
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_R) {
+        resetStick('r');
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_U) {
+        resetStick('r');
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_D) {
+        resetStick('r');
+    } else if (e.key  == CURR_MAPPINGS.Y) {
+        releaseBtn('y')
+    } else if (e.key  == CURR_MAPPINGS.A) {
+        releaseBtn('a')
+    } else if (e.key  == CURR_MAPPINGS.X) {
+        releaseBtn('x')
+    } else if (e.key  == CURR_MAPPINGS.B) {
+        releaseBtn('b')
+    } else if (e.key  == CURR_MAPPINGS.PLUS) {
+        releaseBtn('plus')
+    } else if (e.key  == CURR_MAPPINGS.HOME) {
+        releaseBtn('home')
+    }
+}
+
+function keydn(e){
+    console.log(e.key + " Has been pressed")
+    if (e.key  == CURR_MAPPINGS.ZL){
+        pushBtn('zl')
+    } else if (e.key  == CURR_MAPPINGS.L) {
+        pushBtn('l')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_L) {
+        setStick('l', 'left')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_R) {
+        setStick('l', 'right')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_U) {
+        setStick('l', 'up')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_D) {
+        setStick('l', 'down')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_L) {
+        pushBtn('left')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_R) {
+        pushBtn('right')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_U) {
+        pushBtn('up')
+    } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_D) {
+        pushBtn('down')
+    } else if (e.key  == CURR_MAPPINGS.MINUS) {
+        pushBtn('minus')
+    } else if (e.key  == CURR_MAPPINGS.CAPTURE) {
+        pushBtn('capture')
+    } else if (e.key  == CURR_MAPPINGS.ZR) {
+        pushBtn('zr')
+    } else if (e.key  == CURR_MAPPINGS.R) {
+        pushBtn('r')
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_L) {
+        setStick('r', 'left')
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_R) {
+        setStick('r', 'right')
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_U) {
+        setStick('r', 'up')
+    } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_D) {
+        setStick('r', 'down')
+    } else if (e.key  == CURR_MAPPINGS.Y) {
+        pushBtn('y')
+    } else if (e.key  == CURR_MAPPINGS.A) {
+        pushBtn('a')
+    } else if (e.key  == CURR_MAPPINGS.X) {
+        pushBtn('x')
+    } else if (e.key  == CURR_MAPPINGS.B) {
+        pushBtn('b')
+    } else if (e.key  == CURR_MAPPINGS.PLUS) {
+        pushBtn('plus')
+    } else if (e.key  == CURR_MAPPINGS.HOME) {
+        pushBtn('home')
+    }
+}
+
+function listeners() {
+    // https://stackoverflow.com/questions/13640061/get-a-list-of-all-currently-pressed-keys-in-javascript
+    window.addEventListener("keydown", keydn, false);
+    window.addEventListener('keyup', keyup, false);
+
+}
+
+function removeListeners(){
+    window.removeEventListener('keyup', keyup, false);
+    window.removeEventListener('keydown', keydn, false);
+}
 
 var init = function() {
     /*
@@ -53,6 +174,7 @@ var init = function() {
     CURR_MAPPINGS = DEFAULT_MAPPINGS;
     updateMappingOutput();
     appendOutput("Loaded mappings");
+    listeners()
 }
 
 function updateMappingOutput() {
@@ -63,6 +185,108 @@ function saveMappings() {
     store.set('mappings', CURR_MAPPINGS)
     updateMappingOutput();
     alert("Mappings have been saved!");
+}
+
+function remapUp(e){
+    console.log(e.key + " Has been released")
+    window.removeEventListener("keyup", remapUp, false);
+    TEMP_MAPPINGS[curr_capture] = e.key;
+    console.log(curr_capture, " is now ", e.key);
+    curr_capture = '';
+    generateModal();
+}
+
+function capture(key){
+    console.log("Capture called!")
+    curr_capture = key;
+    window.addEventListener("keyup", remapUp, false)
+}
+
+function remap(){
+    TEMP_MAPPINGS = CURR_MAPPINGS;
+    generateModal()
+}
+
+function saveMap(){
+    CURR_MAPPINGS = TEMP_MAPPINGS;
+    TEMP_MAPPINGS = {};
+    updateMappingOutput();
+    cancelRemap();
+}
+
+function generateModal(){
+    removeListeners()
+    tableBody = document.getElementById("mTable");
+    while (tableBody.firstChild) {
+        tableBody.firstChild.remove();
+    }
+    for (var key in TEMP_MAPPINGS){
+        nextElem = document.createElement('tr');
+        leftCell = document.createElement('td');
+        rightCell = document.createElement('td');
+        btnCell = document.createElement('td');
+        btn = document.createElement('button')
+
+        leftCell.innerHTML = key;
+        rightCell.innerHTML = TEMP_MAPPINGS[key];
+
+        btn.className = "button is-primary"
+        btn.innerHTML = "<i class=\"fa fa-pencil\"></i>"
+        btn.onclick = (function(key){
+            return function(){
+                capture(key);
+            }
+        })(key);
+
+        nextElem.appendChild(leftCell);
+        nextElem.appendChild(rightCell);
+        btnCell.appendChild(btn);
+        nextElem.appendChild(btnCell);
+        tableBody.appendChild(nextElem)
+    }
+    modal = document.getElementById("m");
+    modal.className = "modal is-active"
+}
+
+function cancelRemap(){
+    modal = document.getElementById("m");
+    modal.className = "modal"
+    listeners();
+}
+
+function waitSecond() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve('resolved');
+      }, 1000);
+    });
+  }
+
+async function checkLatency() {
+    var best = 999
+    var worst = 0
+    var avg = 0
+    appendOutput("Testing latency...");
+
+    for (var i = 0; i < 10; i++){
+        var n = +new Date();
+        await axios.get('/latency').then((response) => {
+            var newN = response.data.time;
+            var currN = (newN - n);
+            if (currN < best){
+                best = currN;
+            }
+            if (currN > worst){
+                worst = currN
+            }
+            avg += currN 
+        });
+        await waitSecond();
+        
+    }
+    avg /= 10;
+    appendOutput("Latency: Best/Worst/Avg: " + best + "/" + worst + "/" + avg);
+    
 }
 
 // https://stackoverflow.com/a/30800715
@@ -109,117 +333,6 @@ function openFile() {
 }
 */
 
-// https://stackoverflow.com/questions/13640061/get-a-list-of-all-currently-pressed-keys-in-javascript
-window.addEventListener("keydown",
-    function(e){
-        console.log(e.key + " Has been pressed")
-        if (e.key  == CURR_MAPPINGS.ZL){
-            pushBtn('zl')
-        } else if (e.key  == CURR_MAPPINGS.L) {
-            pushBtn('l')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_L) {
-            setStick('l', 'left')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_R) {
-            setStick('l', 'right')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_U) {
-            setStick('l', 'up')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_D) {
-            setStick('l', 'down')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_L) {
-            pushBtn('left')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_R) {
-            pushBtn('right')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_U) {
-            pushBtn('up')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_D) {
-            pushBtn('down')
-        } else if (e.key  == CURR_MAPPINGS.MINUS) {
-            pushBtn('minus')
-        } else if (e.key  == CURR_MAPPINGS.CAPTURE) {
-            pushBtn('capture')
-        } else if (e.key  == CURR_MAPPINGS.ZR) {
-            pushBtn('zr')
-        } else if (e.key  == CURR_MAPPINGS.R) {
-            pushBtn('r')
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_L) {
-            setStick('r', 'left')
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_R) {
-            setStick('r', 'right')
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_U) {
-            setStick('r', 'up')
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_D) {
-            setStick('r', 'down')
-        } else if (e.key  == CURR_MAPPINGS.Y) {
-            pushBtn('y')
-        } else if (e.key  == CURR_MAPPINGS.A) {
-            pushBtn('a')
-        } else if (e.key  == CURR_MAPPINGS.X) {
-            pushBtn('x')
-        } else if (e.key  == CURR_MAPPINGS.B) {
-            pushBtn('b')
-        } else if (e.key  == CURR_MAPPINGS.PLUS) {
-            pushBtn('plus')
-        } else if (e.key  == CURR_MAPPINGS.HOME) {
-            pushBtn('home')
-        }
-    },
-false);
-
-window.addEventListener('keyup',
-    function(e){
-        console.log(e.key + " Has been released")
-        if (e.key  == CURR_MAPPINGS.ZL){
-            releaseBtn('zl')
-        } else if (e.key  == CURR_MAPPINGS.L) {
-            releaseBtn('l')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_L) {
-            resetStick('l')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_R) {
-            resetStick('l');
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_U) {
-            resetStick('l');
-        } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_D) {
-            resetStick('l');
-        }  else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_L) {
-            releaseBtn('left')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_R) {
-            releaseBtn('right')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_U) {
-            releaseBtn('up')
-        } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_D) {
-            releaseBtn('down')
-        } else if (e.key  == CURR_MAPPINGS.MINUS) {
-            releaseBtn('minus')
-        } else if (e.key  == CURR_MAPPINGS.CAPTURE) {
-            releaseBtn('capture')
-        } else if (e.key  == CURR_MAPPINGS.ZR) {
-            releaseBtn('zr')
-        } else if (e.key  == CURR_MAPPINGS.R) {
-            releaseBtn('r')
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_L) {
-            resetStick('r');
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_R) {
-            resetStick('r');
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_U) {
-            resetStick('r');
-        } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_D) {
-            resetStick('r');
-        } else if (e.key  == CURR_MAPPINGS.Y) {
-            releaseBtn('y')
-        } else if (e.key  == CURR_MAPPINGS.A) {
-            releaseBtn('a')
-        } else if (e.key  == CURR_MAPPINGS.X) {
-            releaseBtn('x')
-        } else if (e.key  == CURR_MAPPINGS.B) {
-            releaseBtn('b')
-        } else if (e.key  == CURR_MAPPINGS.PLUS) {
-            releaseBtn('plus')
-        } else if (e.key  == CURR_MAPPINGS.HOME) {
-            releaseBtn('home')
-        }
-    },
-false);
-
 function appendOutput(msg) { getCommandOutput().value = (msg+'\n') + getCommandOutput().value; };
 
 function clearCmd() { 
@@ -229,20 +342,31 @@ function clearCmd() {
 
 function setStick(stick, direction) {
     appendOutput("Setting stick: " + stick + " to " + direction);
-    axios.get('/stick/' + stick + '/' + direction);
+    axios.get('/stick/' + stick + '/' + direction).then((result) => {
+        getCommandOutput().className = "textarea is-success";
+    }).catch(() => {
+        getCommandOutput().className = "textarea is-danger";
+    });
 }
 
 function resetStick(stick) {
-    appendOutput("Resetting stick: " + stick);
-    axios.get('/stick/' + stick + '/center');
+    setStick(stick, 'center');
 }
 
 function pushBtn(btn) {
     appendOutput("Pushing button: " + btn);
-    axios.get('/btn/' + btn);
+    axios.get('/btn/' + btn).then((result) => {
+        getCommandOutput().className = "textarea is-success";
+    }).catch(() => {
+        getCommandOutput().className = "textarea is-danger";
+    });
 };
 
 function releaseBtn(btn) {
     appendOutput("Pushing button: " + btn);
-    axios.get('/unbtn/' + btn);
+    axios.get('/unbtn/' + btn).then((result) => {
+        getCommandOutput().className = "textarea is-success";
+    }).catch(() => {
+        getCommandOutput().className = "textarea is-danger";
+    });
 };

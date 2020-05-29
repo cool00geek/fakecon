@@ -4,10 +4,31 @@
 <head>
     <title>Joycon</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/bulma.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
+    <div id="m" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Remap Buttons</p>
+            <button onclick="cancelRemap()" class="delete" aria-label="close"></button>
+          </header>
+          <section id="modal-body" class="modal-card-body">
+            <div class="table-container">
+                <table class="table is-striped is-hoverable is-fullwidth">
+                    <tbody id="mTable">
+                    </tbody>
+                </table>
+            </div>
+          </section>
+          <footer class="modal-card-foot">
+            <button onclick="saveMap()" class="button is-success">Save changes</button>
+            <button onclick="cancelRemap()" class="button">Cancel</button>
+          </footer>
+        </div>
+    </div>
     <section class="section">
         <h2 class="subtitle">Output</h2>
         <textarea class="textarea" rows="10" cols="90" id="command-output" disabled="true"></textarea>
@@ -17,6 +38,11 @@
     <section class="section">
         <h2 class="subtitle">Settings</h2>
         <nav class="level">
+            <div class="level-item has-text-centered">
+                <button class="button is-warning" onclick="remap();">
+                    <i class="fa fa-keyboard-o"></i><span>&nbsp Remap</span>
+                </button>
+            </div>
             <div class="level-item has-text-centered">
                 <button class="button is-success" onclick="saveMappings();">
                     <i class="fa fa-floppy-o"></i><span>&nbsp Save</span>
@@ -31,6 +57,12 @@
             <div class="level-item has-text-centered">
                 <button class="button is-warning" onclick="openFile();">
                     <i class="fa fa-download"></i><span>&nbsp Import</span>
+                </button>
+            </div>
+
+            <div class="level-item has-text-centered">
+                <button class="button is-primary" onclick="checkLatency();">
+                    <i class="fa fa-clock-o"></i><span>&nbsp Latency</span>
                 </button>
             </div>
     

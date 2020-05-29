@@ -5,6 +5,8 @@ import asyncio
 import logging
 import os
 
+import time
+
 from aioconsole import ainput
 
 from joycontrol import logging_default as log, utils
@@ -16,6 +18,8 @@ from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
 
 from flask import Flask, render_template
+from werkzeug.serving import WSGIRequestHandler
+from waitress import serve
 
 app = Flask(__name__)
 
@@ -88,6 +92,11 @@ def stick(s, direction):
     loop.run_until_complete(fc.controller_state.send())
     return "200\n"
 
+@app.route('/latency')
+def latency():
+    millis = int(round(time.time() * 1000))
+    return {'time': millis}
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -111,8 +120,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     loop.run_until_complete(fc.setup(args))
-    print("First thing ran")
-    #loop.run_until_complete(fc.push_btn('a'))
-    fc.push_btn('a')
-    #print("Second thing ran")
-    app.run()
+    print("Setup complete!")
+    WSGIRequestHandler.protocol_version = "HTTP/1.1"
+    #app.run(host='0.0.0.0')
+    serve(app,host='0.0.0.0', port=5000)
