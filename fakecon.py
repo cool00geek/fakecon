@@ -17,7 +17,8 @@ from joycontrol.memory import FlashMemory
 from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from flask import jsonify, make_response
 from werkzeug.serving import WSGIRequestHandler
 from waitress import serve
 
@@ -72,25 +73,51 @@ def unbtn(btn):
     loop.run_until_complete(fc.controller_state.send())
     return "200\n"
 
-@app.route('/stick/<s>/<direction>')
-def stick(s, direction):
-    if s == 'l':
-        stick = fc.controller_state.l_stick_state
-    else:
-        stick = fc.controller_state.r_stick_state
+@app.route('/stick', methods=['POST'])
+def stick():
+    req = request.json
 
-    if direction == 'center':
-        stick.set_center()
-    elif direction == 'up':
-        stick.set_up()
-    elif direction == 'down':
-        stick.set_down()
-    elif direction == 'left':
-        stick.set_left()
-    elif direction == 'right':
-        stick.set_right()
+    # Verify that the request was passed as JSON and the request has all keys
+    if (req is None) or ('stick' not in req) or ('direction' not in req) or ('magnitude' not in req): 
+        d = {'Error': "Request was not in the expected format"}
+        return make_response(jsonify(d), 400)
+
+    s = req['stick']
+    direction = req['direction']
+    magnitude = req['magnitude']
+
+    # Convert the magnitude to an int
+    try:
+        magnitude_val = int(magnitude)
+    except:
+        d = {'Error': "Malformed magnitude"}
+        return make_response(jsonify(d), 400)
+
+    # Verify that the magnitude is in the range
+    if magnitude_val > 4095 or magnitude_val < 0:
+        d = {'Error': "Magnitude must be in range [0,4096)"}
+        return make_response(jsonify(d), 400)
+
+    # Get the desired stick
+    if s == 'l' or s == 'left':
+        stick = fc.controller_state.l_stick_state
+    elif s == 'r' or s == 'right':
+        stick = fc.controller_state.r_stick_state
+    else:
+        d = {'Error': "Unknown stick"}
+        return make_response(jsonify(d), 404)
+
+    # Set the stick to the desired direction
+    if direction == 'h' or direction == 'horiz' or direction == 'horizontal':
+        stick.set_h(magnitude_val)
+    elif direction == 'v' or direction == 'vert' or direction == 'vertical':
+        stick.set_v(magnitude_val)
+    else:
+        d = {'Error': "Unknown direction"}
+        return make_response(jsonify(d), 404)
     loop.run_until_complete(fc.controller_state.send())
-    return "200\n"
+    d = {'Success': "Stick set"}
+    return make_response(jsonify(d), 200)
 
 @app.route('/latency')
 def latency():
@@ -119,7 +146,7 @@ if __name__ == '__main__':
                         help='The Switch console Bluetooth address, for reconnecting as an already paired controller')
     args = parser.parse_args()
 
-    loop.run_until_complete(fc.setup(args))
+    #loop.run_until_complete(fc.setup(args))
     print("Setup complete!")
     WSGIRequestHandler.protocol_version = "HTTP/1.1"
     #app.run(host='0.0.0.0')

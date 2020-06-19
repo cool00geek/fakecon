@@ -51,13 +51,17 @@ function keyup(e){
     } else if (e.key  == CURR_MAPPINGS.L) {
         releaseBtn('l')
     } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_L) {
-        resetStick('l')
+        setStick('l', 'hcenter');
+        //resetStick('l')
     } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_R) {
-        resetStick('l');
+        setStick('l', 'hcenter');
+        //resetStick('l');
     } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_U) {
-        resetStick('l');
+        setStick('l', 'vcenter');
+        //resetStick('l');
     } else if (e.key  == CURR_MAPPINGS.LEFT_STICK_D) {
-        resetStick('l');
+        setStick('l', 'vcenter');
+        //resetStick('l');
     }  else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_L) {
         releaseBtn('left')
     } else if (e.key  == CURR_MAPPINGS.LEFT_DPAD_R) {
@@ -75,13 +79,17 @@ function keyup(e){
     } else if (e.key  == CURR_MAPPINGS.R) {
         releaseBtn('r')
     } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_L) {
-        resetStick('r');
+        setStick('r', 'hcenter');
+        //resetStick('r');
     } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_R) {
-        resetStick('r');
+        setStick('r', 'hcenter');
+        //resetStick('r');
     } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_U) {
-        resetStick('r');
+        setStick('r', 'vcenter');
+        //resetStick('r');
     } else if (e.key  == CURR_MAPPINGS.RIGHT_STICK_D) {
-        resetStick('r');
+        setStick('r', 'vcenter');
+        //resetStick('r');
     } else if (e.key  == CURR_MAPPINGS.Y) {
         releaseBtn('y')
     } else if (e.key  == CURR_MAPPINGS.A) {
@@ -149,6 +157,70 @@ function keydn(e){
         pushBtn('home')
     }
 }
+
+function setStick(stick, direction) {
+    appendOutput("Setting stick: " + stick + " to " + direction);
+
+    if (direction == 'left'){
+        var data = { stick: stick,
+                direction: 'h',
+                magnitude: 0
+        };
+    } else if (direction == 'right'){
+        var data = { stick: stick,
+            direction: 'h',
+            magnitude: 4095
+        };
+    } else if (direction == 'hcenter'){
+        var data = { stick: stick,
+            direction: 'h',
+            magnitude: 2048
+        };
+    } else if (direction == 'down'){
+        var data = { stick: stick,
+            direction: 'v',
+            magnitude: 0
+        };
+    } else if (direction == 'up'){
+        var data = { stick: stick,
+            direction: 'v',
+            magnitude: 4095
+        };
+    } else if (direction == 'vcenter'){
+        var data = { stick: stick,
+            direction: 'v',
+            magnitude: 2048
+        };
+    }
+    var headers = {'Content-Type': 'application/json'};
+
+
+    axios.post('/stick', data, {headers: headers}).then((result) => {
+        getCommandOutput().className = "textarea is-success";
+    }).catch(() => {
+        getCommandOutput().className = "textarea is-danger";
+        console.log(error);
+    });
+}
+
+function pushBtn(btn) {
+    appendOutput("Pushing button: " + btn);
+    axios.get('/btn/' + btn).then((result) => {
+        getCommandOutput().className = "textarea is-success";
+    }).catch(() => {
+        getCommandOutput().className = "textarea is-danger";
+    });
+};
+
+function releaseBtn(btn) {
+    appendOutput("Pushing button: " + btn);
+    axios.get('/unbtn/' + btn).then((result) => {
+        getCommandOutput().className = "textarea is-success";
+    }).catch(() => {
+        getCommandOutput().className = "textarea is-danger";
+    });
+};
+
 
 function listeners() {
     // https://stackoverflow.com/questions/13640061/get-a-list-of-all-currently-pressed-keys-in-javascript
@@ -340,33 +412,7 @@ function clearCmd() {
     getCommandOutput().className = "textarea";
 }
 
-function setStick(stick, direction) {
-    appendOutput("Setting stick: " + stick + " to " + direction);
-    axios.get('/stick/' + stick + '/' + direction).then((result) => {
-        getCommandOutput().className = "textarea is-success";
-    }).catch(() => {
-        getCommandOutput().className = "textarea is-danger";
-    });
+function toggle(){
+    var debugSect = document.getElementById('output_section')
+    debugSect.classList.toggle("is-hidden-desktop");	
 }
-
-function resetStick(stick) {
-    setStick(stick, 'center');
-}
-
-function pushBtn(btn) {
-    appendOutput("Pushing button: " + btn);
-    axios.get('/btn/' + btn).then((result) => {
-        getCommandOutput().className = "textarea is-success";
-    }).catch(() => {
-        getCommandOutput().className = "textarea is-danger";
-    });
-};
-
-function releaseBtn(btn) {
-    appendOutput("Pushing button: " + btn);
-    axios.get('/unbtn/' + btn).then((result) => {
-        getCommandOutput().className = "textarea is-success";
-    }).catch(() => {
-        getCommandOutput().className = "textarea is-danger";
-    });
-};
