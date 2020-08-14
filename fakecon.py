@@ -146,7 +146,7 @@ if __name__ == '__main__':
                         help='The Switch console Bluetooth address, for reconnecting as an already paired controller')
     args = parser.parse_args()
 
-    #loop.run_until_complete(fc.setup(args))
+    loop.run_until_complete(fc.setup(args))
     print("Setup complete!")
     WSGIRequestHandler.protocol_version = "HTTP/1.1"
     #app.run(host='0.0.0.0')
